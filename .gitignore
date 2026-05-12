@@ -1,0 +1,15 @@
+# Environments
+venv/
+env/
+.env
+
+# Python internal files
+__pycache__/
+*.py[cod]
+
+# Streamlit secrets 
+.streamlit/
+
+# files
+movies.csv
+ratings.csv
