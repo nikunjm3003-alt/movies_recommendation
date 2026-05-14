@@ -4,3 +4,4 @@ matplotlib
 streamlit
 sqlalchemy
 psycopg2-binary 
+bcrypt
