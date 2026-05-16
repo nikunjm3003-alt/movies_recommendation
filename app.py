@@ -2,132 +2,12 @@ import streamlit as st
 import datetime
 import pandas as pd
 import uuid
-import base64
 import bcrypt
 from sqlalchemy import text
 from src.preprocess import load_and_preprocess
 from src.recommendation import recommend
 
-# ── Background ────────────────────────────────────────────────
-def get_base64_image(image_path):
-    with open(image_path, "rb") as f:
-        return base64.b64encode(f.read()).decode()
-
-def set_background(image_path):
-    img_base64 = get_base64_image(image_path)
-    st.markdown(f"""
-        <style>
-        [data-testid="stAppViewContainer"] {{
-            background-image: url("data:image/jpg;base64,{img_base64}");
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            background-attachment: fixed;
-        }}
-        [data-testid="stHeader"] {{
-            background: transparent;
-        }}
-        [data-testid="stAppViewContainer"]::before {{
-            content: "";
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.65);
-            z-index: 0;
-        }}
-
-        /* Input fields */
-        .stTextInput > div > div > input {{
-            background-color: rgba(30, 30, 46, 0.85);
-            color: white;
-            border: 1px solid #6c63ff;
-            border-radius: 8px;
-        }}
-
-        /* Buttons */
-        .stButton > button {{
-            background: linear-gradient(90deg, #6c63ff, #a855f7);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            padding: 0.5rem 1.5rem;
-            font-weight: bold;
-            transition: 0.3s;
-        }}
-        .stButton > button:hover {{
-            transform: scale(1.03);
-            background: linear-gradient(90deg, #a855f7, #6c63ff);
-        }}
-
-        /* Wide recommend button */
-        div[data-testid="stButton"].recommend-btn > button {{
-            width: 100% !important;
-            padding: 0.75rem 2rem;
-            font-size: 1.1rem;
-            letter-spacing: 0.5px;
-        }}
-
-        /* Selectbox */
-        .stSelectbox > div > div {{
-            background-color: rgba(30, 30, 46, 0.85);
-            color: white;
-            border: 1px solid #6c63ff;
-            border-radius: 8px;
-        }}
-
-        /* Tabs */
-        .stTabs [data-baseweb="tab"] {{
-            color: #a855f7;
-            font-weight: bold;
-        }}
-        .stTabs [aria-selected="true"] {{
-            border-bottom: 2px solid #6c63ff;
-            color: white;
-        }}
-
-        /* Dataframe */
-        .stDataFrame {{
-            border: 1px solid #6c63ff;
-            border-radius: 8px;
-        }}
-
-        /* Expander */
-        .streamlit-expanderHeader {{
-            background-color: rgba(30, 30, 46, 0.85);
-            color: white;
-            border-radius: 8px;
-        }}
-
-        /* Divider */
-        hr {{
-            border-color: #6c63ff;
-        }}
-
-        /* General text color */
-        html, body, [class*="css"] {{
-            color: white;
-        }}
-
-        /* Filter label style */
-        .filter-label {{
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: #c4b5fd;
-            letter-spacing: 0.5px;
-            margin-bottom: 4px;
-        }}
-
-        /* Movie quote style */
-        .movie-quote {{
-            font-style: italic;
-            color: #c4b5fd;
-            font-size: 0.9rem;
-            margin-top: -8px;
-            margin-bottom: 8px;
-            opacity: 0.85;
-        }}
-        </style>
-    """, unsafe_allow_html=True)
+from src.utils import set_background
 
 # ── Page config ───────────────────────────────────────────────
 st.set_page_config(page_title='Movie Recommendation System', layout='centered')
@@ -291,28 +171,24 @@ def main_page():
     st.divider()
 
     # ── Filters ───────────────────────────────────────────────
-    col1, col2 = st.columns(2)
+    st.markdown('<p class="filter-label">😊 Mood</p>', unsafe_allow_html=True)
+    all_moods = sorted(set(
+        m.strip()
+        for moods in df['mood'].dropna()
+        for m in moods.split(',')
+    ))
+    mood = st.selectbox("Mood", all_moods, label_visibility="collapsed")
 
-    with col1:
-        st.markdown('<p class="filter-label">😊 Mood</p>', unsafe_allow_html=True)
-        all_moods = sorted(set(
-            m.strip()
-            for moods in df['mood'].dropna()
-            for m in moods.split(',')
-        ))
-        mood = st.selectbox("Mood", all_moods, label_visibility="collapsed")
+    st.markdown('<p class="filter-label">🎭 Genre</p>', unsafe_allow_html=True)
+    valid_genres = sorted(
+        df[df['mood'].str.contains(mood, na=False)]['genres']
+        .dropna().str.split()
+        .explode().unique().tolist()
+    )
+    genre = st.selectbox("Genre", valid_genres, label_visibility="collapsed")
 
-        st.markdown('<p class="filter-label">🎭 Genre</p>', unsafe_allow_html=True)
-        valid_genres = sorted(
-            df[df['mood'].str.contains(mood, na=False)]['genres']
-            .dropna().str.split()
-            .explode().unique().tolist()
-        )
-        genre = st.selectbox("Genre", valid_genres, label_visibility="collapsed")
-
-    with col2:
-        st.markdown('<p class="filter-label">⭐ Number of Recommendations</p>', unsafe_allow_html=True)
-        number = st.number_input("Number of Recommendations", min_value=1, max_value=20, value=5, label_visibility="collapsed")
+    st.markdown('<p class="filter-label">⭐ Number of Recommendations</p>', unsafe_allow_html=True)
+    number = st.number_input("Number of Recommendations", min_value=1, max_value=20, value=5, label_visibility="collapsed")
 
     # ── Year Range (full width so buttons don't wrap) ────────
     st.markdown('<p class="filter-label">📅 Year Range</p>', unsafe_allow_html=True)
@@ -328,7 +204,7 @@ def main_page():
         </style>
     """, unsafe_allow_html=True)
 
-    max_year = datetime.date.today().year
+    max_year = int(df['year'].max())
     year_options = {
         "Last Year":    1,
         "Last 5 Yrs":  5,
