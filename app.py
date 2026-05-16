@@ -1,4 +1,5 @@
 import streamlit as st
+import datetime
 import pandas as pd
 import uuid
 import base64
@@ -124,33 +125,6 @@ def set_background(image_path):
             margin-top: -8px;
             margin-bottom: 8px;
             opacity: 0.85;
-        }}
-
-        /* Admin link style */
-        .admin-link {{
-            position: fixed;
-            bottom: 18px;
-            right: 22px;
-            z-index: 9999;
-            text-decoration: none;
-        }}
-        .admin-link span {{
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            background: rgba(20, 20, 35, 0.75);
-            border: 1px solid rgba(108, 99, 255, 0.4);
-            border-radius: 20px;
-            padding: 6px 14px;
-            font-size: 0.78rem;
-            color: #c4b5fd;
-            backdrop-filter: blur(6px);
-            transition: all 0.25s ease;
-        }}
-        .admin-link span:hover {{
-            background: rgba(108, 99, 255, 0.25);
-            border-color: #6c63ff;
-            color: white;
         }}
         </style>
     """, unsafe_allow_html=True)
@@ -291,12 +265,6 @@ def auth_page():
                 except Exception as e:
                     st.error(f"Database connection error: {e}")
 
-    # ── Admin link (bottom-right, visible only on login page) ──
-    st.markdown(
-        '<a class="admin-link" href="/admin" target="_self"><span>⚙️ Admin Panel</span></a>',
-        unsafe_allow_html=True
-    )
-
 
 # ── Main app ──────────────────────────────────────────────────
 def main_page():
@@ -327,25 +295,66 @@ def main_page():
 
     with col1:
         st.markdown('<p class="filter-label">😊 Mood</p>', unsafe_allow_html=True)
-        all_moods = sorted(df['mood'].dropna().unique().tolist())
+        all_moods = sorted(set(
+            m.strip()
+            for moods in df['mood'].dropna()
+            for m in moods.split(',')
+        ))
         mood = st.selectbox("Mood", all_moods, label_visibility="collapsed")
 
         st.markdown('<p class="filter-label">🎭 Genre</p>', unsafe_allow_html=True)
         valid_genres = sorted(
-            df[df['mood'] == mood]['genres']
+            df[df['mood'].str.contains(mood, na=False)]['genres']
             .dropna().str.split()
             .explode().unique().tolist()
         )
         genre = st.selectbox("Genre", valid_genres, label_visibility="collapsed")
 
     with col2:
-        st.markdown('<p class="filter-label">📅 Year Range</p>', unsafe_allow_html=True)
-        min_year   = int(df['year'].min())
-        max_year   = int(df['year'].max())
-        year_range = st.slider("Year Range", min_year, max_year, (1990, 2020), label_visibility="collapsed")
-
         st.markdown('<p class="filter-label">⭐ Number of Recommendations</p>', unsafe_allow_html=True)
         number = st.number_input("Number of Recommendations", min_value=1, max_value=20, value=5, label_visibility="collapsed")
+
+    # ── Year Range (full width so buttons don't wrap) ────────
+    st.markdown('<p class="filter-label">📅 Year Range</p>', unsafe_allow_html=True)
+
+    # Prevent button text from wrapping
+    st.markdown("""
+        <style>
+        div[data-testid="stHorizontalBlock"] button[kind="secondary"] {
+            white-space: nowrap !important;
+            font-size: 0.78rem !important;
+            padding: 0.35rem 0.5rem !important;
+        }
+        </style>
+    """, unsafe_allow_html=True)
+
+    max_year = datetime.date.today().year
+    year_options = {
+        "Last Year":    1,
+        "Last 5 Yrs":  5,
+        "Last 10 Yrs": 10,
+        "Last 20 Yrs": 20,
+        "Last 30 Yrs": 30,
+    }
+    if 'year_filter' not in st.session_state:
+        st.session_state.year_filter = "Last 10 Yrs"
+
+    yr_cols = st.columns(len(year_options))
+    for i, (label, val) in enumerate(year_options.items()):
+        with yr_cols[i]:
+            is_active = st.session_state.year_filter == label
+            if st.button(
+                f"{'✅ ' if is_active else ''}{label}",
+                key=f"yr_{val}",
+                use_container_width=True
+            ):
+                st.session_state.year_filter = label
+                st.rerun()
+
+    selected_yrs = year_options[st.session_state.year_filter]
+    min_year     = max_year - selected_yrs
+    year_range   = (min_year, max_year)
+    st.caption(f"📆 {min_year} – {max_year}")
 
     # ── Wide Recommend Button ─────────────────────────────────
     st.markdown("<br>", unsafe_allow_html=True)
@@ -366,24 +375,70 @@ def main_page():
             st.warning(results)
         else:
             st.success(f"🎉 Top {number} recommendations for you!")
-            st.dataframe(results, use_container_width=True)
+
+            # Show results as styled HTML cards table
+            display_cols = [c for c in ['title', 'year', 'genres', 'imdb_rating', 'where_to_watch'] if c in results.columns]
+            display_df = results[display_cols].reset_index(drop=True)
+
+            row_items = []
+            for _, row in display_df.iterrows():
+                stars = "⭐" * int(round(float(row["imdb_rating"]) / 2))
+                platforms = str(row.get("where_to_watch", "") or "N/A")
+                badges = "".join(
+                    f'<span style="background:rgba(108,99,255,0.25);border:1px solid #6c63ff;'
+                    f'border-radius:12px;padding:2px 9px;margin:2px;font-size:0.73rem;'
+                    f'display:inline-block;white-space:nowrap;">{p.strip()}</span>'
+                    for p in platforms.split(",") if p.strip()
+                )
+                row_items.append(
+                    f'<tr style="border-bottom:1px solid rgba(108,99,255,0.18);transition:background 0.2s;"'
+                    f' onmouseover="this.style.background=\'rgba(108,99,255,0.1)\'"'
+                    f' onmouseout="this.style.background=\'transparent\'">' 
+                    f'<td style="padding:13px 12px;font-weight:600;color:#fff;">{row["title"]}</td>'
+                    f'<td style="padding:13px 12px;color:#c4b5fd;text-align:center;">{int(row["year"])}</td>'
+                    f'<td style="padding:13px 12px;color:#94a3b8;font-size:0.82rem;">{row["genres"]}</td>'
+                    f'<td style="padding:13px 12px;text-align:center;color:#fbbf24;font-weight:700;">'
+                    f'{row["imdb_rating"]}<br><span style="font-size:0.68rem;">{stars}</span></td>'
+                    f'<td style="padding:13px 12px;">{badges}</td></tr>'
+                )
+
+            table_html = (
+                '<div style="overflow-x:auto;border-radius:12px;border:1px solid #6c63ff;margin-top:12px;">' 
+                '<table style="width:100%;border-collapse:collapse;background:rgba(15,15,35,0.88);">' 
+                '<thead><tr style="background:linear-gradient(90deg,rgba(108,99,255,0.45),rgba(168,85,247,0.45));'
+                'border-bottom:2px solid #6c63ff;">' 
+                '<th style="padding:12px;text-align:left;color:#c4b5fd;font-size:0.78rem;letter-spacing:1px;text-transform:uppercase;">🎬 Title</th>'
+                '<th style="padding:12px;text-align:center;color:#c4b5fd;font-size:0.78rem;letter-spacing:1px;text-transform:uppercase;">📅 Year</th>'
+                '<th style="padding:12px;text-align:left;color:#c4b5fd;font-size:0.78rem;letter-spacing:1px;text-transform:uppercase;">🎭 Genres</th>'
+                '<th style="padding:12px;text-align:center;color:#c4b5fd;font-size:0.78rem;letter-spacing:1px;text-transform:uppercase;">⭐ Rating</th>'
+                '<th style="padding:12px;text-align:left;color:#c4b5fd;font-size:0.78rem;letter-spacing:1px;text-transform:uppercase;">📺 Where to Watch</th>'
+                '</tr></thead><tbody>'
+                + "".join(row_items)
+                + '</tbody></table></div>'
+            )
+            st.markdown(table_html, unsafe_allow_html=True)
 
             try:
                 with conn.session as s:
+                    where_to_watch_val = '; '.join(
+                        results['where_to_watch'].dropna().astype(str).tolist()
+                    ) if 'where_to_watch' in results.columns else ''
+
                     s.execute(
                         text("""
                             INSERT INTO movie_searches (
-                                user_id, genre, mood, min_year, max_year, num_results
+                                user_id, genre, mood, min_year, max_year, num_results, where_to_watch
                             )
-                            VALUES (:uid, :genre, :mood, :min_year, :max_year, :num_results)
+                            VALUES (:uid, :genre, :mood, :min_year, :max_year, :num_results, :where_to_watch)
                         """),
                         {
-                            "uid":         st.session_state.user_id,
-                            "genre":       genre,
-                            "mood":        mood,
-                            "min_year":    int(year_range[0]),
-                            "max_year":    int(year_range[1]),
-                            "num_results": int(len(results))
+                            "uid":            st.session_state.user_id,
+                            "genre":          genre,
+                            "mood":           mood,
+                            "min_year":       int(year_range[0]),
+                            "max_year":       int(year_range[1]),
+                            "num_results":    int(len(results)),
+                            "where_to_watch": where_to_watch_val
                         }
                     )
                     s.commit()
@@ -421,7 +476,7 @@ def main_page():
         if history.empty:
             st.info("No search history yet.")
         else:
-            st.dataframe(history, use_container_width=True)
+            st.dataframe(history.reset_index(drop=True), use_container_width=True, hide_index=True)
 
 
 # ── Router ────────────────────────────────────────────────────
