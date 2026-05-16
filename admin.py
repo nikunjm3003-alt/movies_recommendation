@@ -14,15 +14,15 @@ if "admin_logged_in" not in st.session_state:
     st.session_state.admin_logged_in = False
 
 # ── Chart theme ───────────────────────────────────────────────
-GRID_COLOR = "rgba(148,163,184,0.2)"
-BG_COLOR   = "rgba(0,0,0,0)"
+GRID_COLOR = "rgba(148,163,184,0.12)"
+BG_COLOR   = "rgba(2,6,23,0)"
 
 def apply_chart_theme(fig, title=""):
     fig.update_layout(
-        title=dict(text=title, font=dict(color="#0f172a", size=15, family="sans-serif")),
+        title=dict(text=title, font=dict(color="#f8fafc", size=15, family="sans-serif")),
         paper_bgcolor=BG_COLOR,
         plot_bgcolor=BG_COLOR,
-        font=dict(color="#475569", family="sans-serif"),
+        font=dict(color="#cbd5e1", family="sans-serif"),
         margin=dict(l=20, r=20, t=44, b=20),
         xaxis=dict(gridcolor=GRID_COLOR, zerolinecolor=GRID_COLOR, linecolor=GRID_COLOR),
         yaxis=dict(gridcolor=GRID_COLOR, zerolinecolor=GRID_COLOR, linecolor=GRID_COLOR),
@@ -127,17 +127,17 @@ def admin_login():
         st.markdown("""
         <div style="text-align:center; padding: 48px 0 32px 0;">
             <div style="font-size:3rem;">🛠️</div>
-            <h1 style="color:#0f172a; font-size:1.8rem; font-weight:800; margin:8px 0 4px 0;">
+            <h1 style="color:#f8fafc; font-size:1.8rem; font-weight:800; margin:8px 0 4px 0;">
                 Admin Access
             </h1>
-            <p style="color:#94a3b8; font-size:0.85rem; letter-spacing:1px;">
+            <p style="color:#cbd5e1; font-size:0.85rem; letter-spacing:1px;">
                 MOVIE RECOMMENDATION SYSTEM
             </p>
         </div>
         """, unsafe_allow_html=True)
 
         st.markdown("""
-        <div style="background:#ffffff; border:1px solid #e2e8f0;
+        <div style="background:rgba(17,24,39,0.92); border:1px solid #334155;
             border-radius:16px; padding:32px;
             box-shadow:0 4px 16px rgba(0,0,0,0.08);">
         """, unsafe_allow_html=True)
@@ -229,7 +229,7 @@ def admin_dashboard():
             fig = px.bar(
                 genres_df, x="count", y="genre", orientation="h",
                 color="count",
-                color_continuous_scale=[[0, "#7dd3fc"], [1, "#0284c7"]],
+                color_continuous_scale=[[0, "#38bdf8"], [1, "#0ea5e9"]],
             )
             fig.update_traces(marker_line_width=0)
             fig = apply_chart_theme(fig, "🎭 Top Genres")
@@ -246,8 +246,14 @@ def admin_dashboard():
         if not moods_df.empty:
             fig = px.pie(
                 moods_df, values="count", names="mood",
-                color_discrete_sequence=["#0ea5e9","#38bdf8","#7dd3fc",
-                                         "#bae6fd","#0284c7","#0369a1"],
+                color_discrete_sequence=[
+                    "#38bdf8",
+                    "#0ea5e9",
+                    "#0284c7",
+                    "#0369a1",
+                    "#7dd3fc",
+                    "#334155"
+                ],
                 hole=0.45,
             )
             fig.update_traces(
@@ -268,7 +274,7 @@ def admin_dashboard():
         fig = px.bar(
             per_user_df, x="username", y="searches",
             color="searches",
-            color_continuous_scale=[[0, "#bae6fd"], [1, "#0284c7"]],
+            color_continuous_scale=[[0, "#38bdf8"], [1, "#0ea5e9"]],
         )
         fig.update_traces(marker_line_width=0)
         fig = apply_chart_theme(fig, "")

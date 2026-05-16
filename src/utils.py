@@ -133,84 +133,148 @@ def set_background(image_path: str) -> None:
 
 
 def get_admin_css() -> str:
-    """Returns the Arctic Light CSS string for the admin dashboard."""
+    """Returns the Midnight Cinema CSS for the admin dashboard."""
+
     return """
     <style>
-        .stApp { background-color: #f0f4f8; }
 
-        /* ── Metric cards ── */
-        [data-testid="stMetric"] {
-            background: #ffffff;
-            border: 1px solid #e2e8f0;
-            border-radius: 14px;
-            padding: 20px 24px;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+        /* ─────────────────────────────────────────────
+           MAIN BACKGROUND
+        ───────────────────────────────────────────── */
+        .stApp {
+            background: linear-gradient(180deg, #020617 0%, #0f172a 100%);
+            color: #f8fafc;
         }
+
+
+        /* ─────────────────────────────────────────────
+           HEADINGS + TEXT
+        ───────────────────────────────────────────── */
+        h1, h2, h3 {
+            color: #f8fafc !important;
+        }
+
+        p, span, label {
+            color: #cbd5e1;
+        }
+
+        hr {
+            border-color: rgba(148, 163, 184, 0.12) !important;
+        }
+
+
+        /* ─────────────────────────────────────────────
+           METRIC CARDS
+        ───────────────────────────────────────────── */
+        [data-testid="stMetric"] {
+            background: rgba(17, 24, 39, 0.95);
+            border: 1px solid #334155;
+            border-radius: 16px;
+            padding: 22px;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+        }
+
         [data-testid="stMetricLabel"] {
-            color: #0284c7 !important;
-            font-size: 0.78rem;
+            color: #38bdf8 !important;
+            font-size: 0.8rem;
             letter-spacing: 1px;
             text-transform: uppercase;
         }
+
         [data-testid="stMetricValue"] {
-            color: #0f172a !important;
+            color: #f8fafc !important;
             font-size: 2rem;
             font-weight: 700;
         }
 
-        /* ── Headings ── */
-        h1, h2, h3 { color: #0f172a !important; }
-        hr { border-color: #e2e8f0 !important; }
 
-        /* ── Inputs ── */
-        [data-testid="stSelectbox"] > div,
-        [data-testid="stTextInput"] > div > div {
-            background: #ffffff !important;
-            border-color: #cbd5e1 !important;
-            border-radius: 8px !important;
-            color: #0f172a !important;
+        /* ─────────────────────────────────────────────
+           INPUTS
+        ───────────────────────────────────────────── */
+        [data-testid="stTextInput"] input,
+        [data-testid="stSelectbox"] > div > div {
+            background: #0f172a !important;
+            color: #f8fafc !important;
+            border: 1px solid #334155 !important;
+            border-radius: 10px !important;
         }
 
-        /* ── Primary button ── */
+
+        /* ─────────────────────────────────────────────
+           BUTTONS
+        ───────────────────────────────────────────── */
         [data-testid="stButton"] > button[kind="primary"] {
-            background: linear-gradient(135deg, #0284c7, #0ea5e9);
+            background: linear-gradient(135deg, #0ea5e9, #38bdf8);
             border: none;
-            border-radius: 8px;
+            border-radius: 10px;
             color: white;
             font-weight: 600;
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 14px rgba(14,165,233,0.18);
         }
 
-        /* ── Secondary button ── */
+        [data-testid="stButton"] > button[kind="primary"]:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 18px rgba(56,189,248,0.25);
+        }
+
         [data-testid="stButton"] > button[kind="secondary"] {
-            background: #ffffff;
-            border: 1px solid #cbd5e1;
-            border-radius: 8px;
-            color: #475569;
-            font-weight: 500;
+            background: #111827;
+            border: 1px solid #334155;
+            border-radius: 10px;
+            color: #cbd5e1;
         }
 
-        /* ── Caption ── */
-        [data-testid="stCaptionContainer"] { color: #94a3b8 !important; }
 
-        /* ── Warning box ── */
+        /* ─────────────────────────────────────────────
+           ALERTS + EXPANDERS
+        ───────────────────────────────────────────── */
         [data-testid="stAlert"] {
-            background: #fffbeb !important;
-            border: 1px solid #fcd34d !important;
-            border-radius: 10px !important;
-            color: #92400e !important;
+            background: rgba(30, 41, 59, 0.92) !important;
+            border: 1px solid #475569 !important;
+            border-radius: 12px !important;
+            color: #f8fafc !important;
         }
 
-        /* ── Expander ── */
         [data-testid="stExpander"] {
-            background: #ffffff !important;
-            border: 1px solid #e2e8f0 !important;
-            border-radius: 10px !important;
+            background: rgba(17, 24, 39, 0.92) !important;
+            border: 1px solid #334155 !important;
+            border-radius: 12px !important;
         }
+
+
+        /* ─────────────────────────────────────────────
+           CAPTIONS
+        ───────────────────────────────────────────── */
+        [data-testid="stCaptionContainer"] {
+            color: #94a3b8 !important;
+        }
+
+
+        /* ─────────────────────────────────────────────
+           DATAFRAME
+        ───────────────────────────────────────────── */
+        .stDataFrame {
+            border: 1px solid #334155;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+
+        /* ─────────────────────────────────────────────
+           SIDEBAR
+        ───────────────────────────────────────────── */
+        section[data-testid="stSidebar"] {
+            background: #020617;
+            border-right: 1px solid rgba(148,163,184,0.1);
+        }
+
     </style>
     """
 
 
 def apply_admin_css() -> None:
-    """Injects Arctic Light admin CSS into the Streamlit page."""
+    """Injects Midnight Cinema admin CSS into the Streamlit page."""
+
     import streamlit as st
     st.markdown(get_admin_css(), unsafe_allow_html=True)
