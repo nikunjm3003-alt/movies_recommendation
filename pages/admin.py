@@ -78,6 +78,8 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ── Admin password guard ──────────────────────────────────────
+st.write("Available secret keys:", list(st.secrets.keys()))
+
 if "ADMIN_PASSWORD" not in st.secrets:
     st.error("Admin access is not configured.")
     st.stop()
