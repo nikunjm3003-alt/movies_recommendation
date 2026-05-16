@@ -3,6 +3,7 @@ import pandas as pd
 from sqlalchemy import text
 
 # ── Page config ───────────────────────────────────────────────
+# Note: Streamlit allows this as long as it's the first command on the page load
 st.set_page_config(page_title="Admin Panel", layout="wide")
 
 # ── Styling ───────────────────────────────────────────────────
@@ -78,10 +79,8 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ── Admin password guard ──────────────────────────────────────
-st.write("Available secret keys:", list(st.secrets.keys()))
-
 if "ADMIN_PASSWORD" not in st.secrets:
-    st.error("Admin access is not configured.")
+    st.error("Admin access is not configured in st.secrets.")
     st.stop()
 
 ADMIN_PASSWORD = st.secrets["ADMIN_PASSWORD"]
@@ -89,15 +88,17 @@ ADMIN_PASSWORD = st.secrets["ADMIN_PASSWORD"]
 if "admin_authenticated" not in st.session_state:
     st.session_state.admin_authenticated = False
 
+# If user is not authenticated, show login form
 if not st.session_state.admin_authenticated:
     st.markdown('<p class="admin-title">⚙️ Admin Panel</p>', unsafe_allow_html=True)
     st.markdown('<p class="admin-sub">Restricted access — enter the admin password to continue.</p>', unsafe_allow_html=True)
 
-    pwd = st.text_input("Admin Password", type="password", placeholder="Enter admin password")
-
-    col1, col2 = st.columns([1, 4])
-    with col1:
-        if st.button("Unlock", use_container_width=True):
+    # Use a form context to handle password submissions gracefully via "Enter" key
+    with st.form("admin_login_form"):
+        pwd = st.text_input("Admin Password", type="password", placeholder="Enter admin password")
+        submit_button = st.form_submit_button("Unlock", use_container_width=True)
+        
+        if submit_button:
             if pwd == ADMIN_PASSWORD:
                 st.session_state.admin_authenticated = True
                 st.rerun()
@@ -115,12 +116,11 @@ st.markdown('<p class="admin-sub">Movie Recommendation System — Admin Dashboar
 
 col_back, _ = st.columns([1, 6])
 with col_back:
-    if st.button("🔒 Lock Panel"):
+    if st.button("🔒 Lock Panel", use_container_width=True):
         st.session_state.admin_authenticated = False
         st.rerun()
 
 st.markdown('<a class="back-link" href="/" target="_self">← Back to app</a>', unsafe_allow_html=True)
-
 st.divider()
 
 # ── Metrics ───────────────────────────────────────────────────
