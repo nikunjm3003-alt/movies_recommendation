@@ -78,7 +78,11 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ── Admin password guard ──────────────────────────────────────
-ADMIN_PASSWORD = st.secrets.get("ADMIN_PASSWORD")  # set in secrets.toml
+if "ADMIN_PASSWORD" not in st.secrets:
+    st.error("Admin access is not configured.")
+    st.stop()
+
+ADMIN_PASSWORD = st.secrets["ADMIN_PASSWORD"]
 
 if "admin_authenticated" not in st.session_state:
     st.session_state.admin_authenticated = False
