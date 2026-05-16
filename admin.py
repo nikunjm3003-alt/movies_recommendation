@@ -9,9 +9,116 @@ st.set_page_config(page_title="Admin Dashboard", layout="wide")
 # ── Inject CSS ────────────────────────────────────────────────
 apply_admin_css()
 
-# ── Session state for admin auth ──────────────────────────────
+# ── Session state ─────────────────────────────────────────────
 if "admin_logged_in" not in st.session_state:
     st.session_state.admin_logged_in = False
+
+# ── Chart theme ───────────────────────────────────────────────
+GRID_COLOR = "rgba(148,163,184,0.2)"
+BG_COLOR   = "rgba(0,0,0,0)"
+
+def apply_chart_theme(fig, title=""):
+    fig.update_layout(
+        title=dict(text=title, font=dict(color="#0f172a", size=15, family="sans-serif")),
+        paper_bgcolor=BG_COLOR,
+        plot_bgcolor=BG_COLOR,
+        font=dict(color="#475569", family="sans-serif"),
+        margin=dict(l=20, r=20, t=44, b=20),
+        xaxis=dict(gridcolor=GRID_COLOR, zerolinecolor=GRID_COLOR, linecolor=GRID_COLOR),
+        yaxis=dict(gridcolor=GRID_COLOR, zerolinecolor=GRID_COLOR, linecolor=GRID_COLOR),
+    )
+    return fig
+
+# ── HTML table builders ───────────────────────────────────────
+def users_table_html(df):
+    rows = ""
+    for _, row in df[["username", "email"]].iterrows():
+        initials = row["username"][:2].upper()
+        rows += f"""
+        <tr style="border-bottom:1px solid #f1f5f9;"
+            onmouseover="this.style.background='#f8fafc'"
+            onmouseout="this.style.background='#ffffff'">
+            <td style="padding:12px 16px;">
+                <span style="background:linear-gradient(135deg,#0284c7,#0ea5e9);
+                    border-radius:50%;width:32px;height:32px;display:inline-flex;
+                    align-items:center;justify-content:center;font-size:0.7rem;
+                    font-weight:700;color:#fff;margin-right:10px;">{initials}</span>
+                <span style="color:#0f172a;font-weight:500;">{row['username']}</span>
+            </td>
+            <td style="padding:12px 16px;color:#64748b;">{row['email']}</td>
+        </tr>"""
+
+    return f"""
+    <div style="border-radius:12px;border:1px solid #e2e8f0;overflow:hidden;
+        margin-bottom:8px;box-shadow:0 1px 4px rgba(0,0,0,0.05);">
+        <table style="width:100%;border-collapse:collapse;background:#ffffff;">
+            <thead>
+                <tr style="background:linear-gradient(90deg,#f0f9ff,#e0f2fe);
+                    border-bottom:1px solid #bae6fd;">
+                    <th style="padding:12px 16px;text-align:left;color:#0284c7;
+                        font-size:0.75rem;letter-spacing:1px;text-transform:uppercase;">
+                        👤 Username</th>
+                    <th style="padding:12px 16px;text-align:left;color:#0284c7;
+                        font-size:0.75rem;letter-spacing:1px;text-transform:uppercase;">
+                        📧 Email</th>
+                </tr>
+            </thead>
+            <tbody>{rows}</tbody>
+        </table>
+    </div>"""
+
+
+def searches_table_html(df):
+    rows = ""
+    for _, row in df.iterrows():
+        rows += f"""
+        <tr style="border-bottom:1px solid #f1f5f9;"
+            onmouseover="this.style.background='#f8fafc'"
+            onmouseout="this.style.background='#ffffff'">
+            <td style="padding:11px 14px;color:#0f172a;font-weight:500;">{row['username']}</td>
+            <td style="padding:11px 14px;">
+                <span style="background:#e0f2fe;border:1px solid #bae6fd;
+                    border-radius:20px;padding:2px 10px;font-size:0.75rem;color:#0369a1;">
+                    {row['genre']}
+                </span>
+            </td>
+            <td style="padding:11px 14px;">
+                <span style="background:#f0fdf4;border:1px solid #bbf7d0;
+                    border-radius:20px;padding:2px 10px;font-size:0.75rem;color:#15803d;">
+                    {row['mood']}
+                </span>
+            </td>
+            <td style="padding:11px 14px;color:#94a3b8;font-size:0.82rem;">
+                {int(row['min_year'])} – {int(row['max_year'])}
+            </td>
+            <td style="padding:11px 14px;text-align:center;color:#0284c7;font-weight:700;">
+                {int(row['num_results'])}
+            </td>
+        </tr>"""
+
+    return f"""
+    <div style="border-radius:12px;border:1px solid #e2e8f0;overflow:hidden;
+        overflow-x:auto;margin-bottom:8px;box-shadow:0 1px 4px rgba(0,0,0,0.05);">
+        <table style="width:100%;border-collapse:collapse;background:#ffffff;">
+            <thead>
+                <tr style="background:linear-gradient(90deg,#f0f9ff,#e0f2fe);
+                    border-bottom:1px solid #bae6fd;">
+                    <th style="padding:12px 14px;text-align:left;color:#0284c7;
+                        font-size:0.72rem;letter-spacing:1px;text-transform:uppercase;">👤 User</th>
+                    <th style="padding:12px 14px;text-align:left;color:#0284c7;
+                        font-size:0.72rem;letter-spacing:1px;text-transform:uppercase;">🎭 Genre</th>
+                    <th style="padding:12px 14px;text-align:left;color:#0284c7;
+                        font-size:0.72rem;letter-spacing:1px;text-transform:uppercase;">😊 Mood</th>
+                    <th style="padding:12px 14px;text-align:left;color:#0284c7;
+                        font-size:0.72rem;letter-spacing:1px;text-transform:uppercase;">📅 Years</th>
+                    <th style="padding:12px 14px;text-align:center;color:#0284c7;
+                        font-size:0.72rem;letter-spacing:1px;text-transform:uppercase;">🎬 Results</th>
+                </tr>
+            </thead>
+            <tbody>{rows}</tbody>
+        </table>
+    </div>"""
+
 
 # ── Admin Login Page ──────────────────────────────────────────
 def admin_login():
@@ -20,18 +127,19 @@ def admin_login():
         st.markdown("""
         <div style="text-align:center; padding: 48px 0 32px 0;">
             <div style="font-size:3rem;">🛠️</div>
-            <h1 style="color:#fff; font-size:1.8rem; font-weight:800; margin:8px 0 4px 0;">
+            <h1 style="color:#0f172a; font-size:1.8rem; font-weight:800; margin:8px 0 4px 0;">
                 Admin Access
             </h1>
-            <p style="color:#64748b; font-size:0.85rem; letter-spacing:1px;">
+            <p style="color:#94a3b8; font-size:0.85rem; letter-spacing:1px;">
                 MOVIE RECOMMENDATION SYSTEM
             </p>
         </div>
         """, unsafe_allow_html=True)
 
         st.markdown("""
-        <div style="background:rgba(108,99,255,0.08); border:1px solid rgba(108,99,255,0.3);
-            border-radius:16px; padding:32px;">
+        <div style="background:#ffffff; border:1px solid #e2e8f0;
+            border-radius:16px; padding:32px;
+            box-shadow:0 4px 16px rgba(0,0,0,0.08);">
         """, unsafe_allow_html=True)
 
         password = st.text_input(
@@ -49,129 +157,23 @@ def admin_login():
 
         st.markdown("</div>", unsafe_allow_html=True)
 
-# ── Database connection ───────────────────────────────────────
-def get_conn():
-    return st.connection('postgresql', type='sql')
 
-# ── Chart theme helper ────────────────────────────────────────
-DARK_BG    = "#0f0f23"
-GRID_COLOR = "rgba(108,99,255,0.15)"
-
-def apply_chart_theme(fig, title=""):
-    fig.update_layout(
-        title=dict(text=title, font=dict(color="#c4b5fd", size=16)),
-        paper_bgcolor="rgba(0,0,0,0)",
-        plot_bgcolor="rgba(0,0,0,0)",
-        font=dict(color="#94a3b8", family="monospace"),
-        margin=dict(l=20, r=20, t=40, b=20),
-        xaxis=dict(gridcolor=GRID_COLOR, zerolinecolor=GRID_COLOR),
-        yaxis=dict(gridcolor=GRID_COLOR, zerolinecolor=GRID_COLOR),
-    )
-    return fig
-
-# ── HTML table builders ───────────────────────────────────────
-def users_table_html(df):
-    rows = ""
-    for _, row in df[["username", "email"]].iterrows():
-        initials = row["username"][:2].upper()
-        rows += f"""
-        <tr style="border-bottom:1px solid rgba(108,99,255,0.15);"
-            onmouseover="this.style.background='rgba(108,99,255,0.08)'"
-            onmouseout="this.style.background='transparent'">
-            <td style="padding:12px 16px;">
-                <span style="background:linear-gradient(135deg,#6c63ff,#a855f7);
-                    border-radius:50%;width:32px;height:32px;display:inline-flex;
-                    align-items:center;justify-content:center;font-size:0.7rem;
-                    font-weight:700;color:#fff;margin-right:10px;">{initials}</span>
-                <span style="color:#fff;font-weight:500;">{row['username']}</span>
-            </td>
-            <td style="padding:12px 16px;color:#94a3b8;">{row['email']}</td>
-        </tr>"""
-
-    return f"""
-    <div style="border-radius:12px;border:1px solid rgba(108,99,255,0.3);overflow:hidden;margin-bottom:8px;">
-        <table style="width:100%;border-collapse:collapse;background:rgba(15,15,35,0.7);">
-            <thead>
-                <tr style="background:linear-gradient(90deg,rgba(108,99,255,0.3),rgba(168,85,247,0.3));
-                    border-bottom:1px solid rgba(108,99,255,0.4);">
-                    <th style="padding:12px 16px;text-align:left;color:#c4b5fd;
-                        font-size:0.75rem;letter-spacing:1px;text-transform:uppercase;">👤 Username</th>
-                    <th style="padding:12px 16px;text-align:left;color:#c4b5fd;
-                        font-size:0.75rem;letter-spacing:1px;text-transform:uppercase;">📧 Email</th>
-                </tr>
-            </thead>
-            <tbody>{rows}</tbody>
-        </table>
-    </div>"""
-
-
-def searches_table_html(df):
-    rows = ""
-    for _, row in df.iterrows():
-        rows += f"""
-        <tr style="border-bottom:1px solid rgba(108,99,255,0.12);"
-            onmouseover="this.style.background='rgba(108,99,255,0.08)'"
-            onmouseout="this.style.background='transparent'">
-            <td style="padding:11px 14px;color:#fff;font-weight:500;">{row['username']}</td>
-            <td style="padding:11px 14px;">
-                <span style="background:rgba(108,99,255,0.2);border:1px solid #6c63ff;
-                    border-radius:20px;padding:2px 10px;font-size:0.75rem;color:#c4b5fd;">
-                    {row['genre']}
-                </span>
-            </td>
-            <td style="padding:11px 14px;">
-                <span style="background:rgba(168,85,247,0.2);border:1px solid #a855f7;
-                    border-radius:20px;padding:2px 10px;font-size:0.75rem;color:#d8b4fe;">
-                    {row['mood']}
-                </span>
-            </td>
-            <td style="padding:11px 14px;color:#64748b;font-size:0.82rem;">
-                {int(row['min_year'])} – {int(row['max_year'])}
-            </td>
-            <td style="padding:11px 14px;text-align:center;color:#fbbf24;font-weight:700;">
-                {int(row['num_results'])}
-            </td>
-        </tr>"""
-
-    return f"""
-    <div style="border-radius:12px;border:1px solid rgba(108,99,255,0.3);
-        overflow:hidden;overflow-x:auto;margin-bottom:8px;">
-        <table style="width:100%;border-collapse:collapse;background:rgba(15,15,35,0.7);">
-            <thead>
-                <tr style="background:linear-gradient(90deg,rgba(108,99,255,0.3),rgba(168,85,247,0.3));
-                    border-bottom:1px solid rgba(108,99,255,0.4);">
-                    <th style="padding:12px 14px;text-align:left;color:#c4b5fd;
-                        font-size:0.72rem;letter-spacing:1px;text-transform:uppercase;">👤 User</th>
-                    <th style="padding:12px 14px;text-align:left;color:#c4b5fd;
-                        font-size:0.72rem;letter-spacing:1px;text-transform:uppercase;">🎭 Genre</th>
-                    <th style="padding:12px 14px;text-align:left;color:#c4b5fd;
-                        font-size:0.72rem;letter-spacing:1px;text-transform:uppercase;">😊 Mood</th>
-                    <th style="padding:12px 14px;text-align:left;color:#c4b5fd;
-                        font-size:0.72rem;letter-spacing:1px;text-transform:uppercase;">📅 Years</th>
-                    <th style="padding:12px 14px;text-align:center;color:#c4b5fd;
-                        font-size:0.72rem;letter-spacing:1px;text-transform:uppercase;">🎬 Results</th>
-                </tr>
-            </thead>
-            <tbody>{rows}</tbody>
-        </table>
-    </div>"""
-
-
-# ── Main dashboard ────────────────────────────────────────────
+# ── Admin Dashboard ───────────────────────────────────────────
 def admin_dashboard():
-    conn = get_conn()
+    conn = st.connection('postgresql', type='sql')
 
     # Header
     st.markdown("""
     <div style="padding: 8px 0 24px 0;">
-        <h1 style="color:#fff; margin:0; font-size:2rem; font-weight:800;">🛠️ Admin Dashboard</h1>
-        <p style="color:#64748b; margin:4px 0 0 0; font-size:0.85rem; letter-spacing:1px;">
+        <h1 style="color:#0f172a; margin:0; font-size:2rem; font-weight:800;">
+            🛠️ Admin Dashboard
+        </h1>
+        <p style="color:#94a3b8; margin:4px 0 0 0; font-size:0.85rem; letter-spacing:1px;">
             MOVIE RECOMMENDATION SYSTEM
         </p>
     </div>
     """, unsafe_allow_html=True)
 
-    # Logout button
     if st.button("Logout", type="secondary"):
         st.session_state.admin_logged_in = False
         st.rerun()
@@ -227,7 +229,7 @@ def admin_dashboard():
             fig = px.bar(
                 genres_df, x="count", y="genre", orientation="h",
                 color="count",
-                color_continuous_scale=[[0, "#4f46e5"], [1, "#a855f7"]],
+                color_continuous_scale=[[0, "#7dd3fc"], [1, "#0284c7"]],
             )
             fig.update_traces(marker_line_width=0)
             fig = apply_chart_theme(fig, "🎭 Top Genres")
@@ -244,15 +246,16 @@ def admin_dashboard():
         if not moods_df.empty:
             fig = px.pie(
                 moods_df, values="count", names="mood",
-                color_discrete_sequence=px.colors.sequential.Purples_r,
+                color_discrete_sequence=["#0ea5e9","#38bdf8","#7dd3fc",
+                                         "#bae6fd","#0284c7","#0369a1"],
                 hole=0.45,
             )
             fig.update_traces(
-                textfont_color="#fff",
-                marker=dict(line=dict(color=DARK_BG, width=2))
+                textfont_color="#0f172a",
+                marker=dict(line=dict(color="#f0f4f8", width=2))
             )
             fig = apply_chart_theme(fig, "😊 Mood Distribution")
-            fig.update_layout(legend=dict(font=dict(color="#94a3b8")))
+            fig.update_layout(legend=dict(font=dict(color="#475569")))
             st.plotly_chart(fig, use_container_width=True)
         else:
             st.info("No mood data yet.")
@@ -265,7 +268,7 @@ def admin_dashboard():
         fig = px.bar(
             per_user_df, x="username", y="searches",
             color="searches",
-            color_continuous_scale=[[0, "#6c63ff"], [1, "#f472b6"]],
+            color_continuous_scale=[[0, "#bae6fd"], [1, "#0284c7"]],
         )
         fig.update_traces(marker_line_width=0)
         fig = apply_chart_theme(fig, "")

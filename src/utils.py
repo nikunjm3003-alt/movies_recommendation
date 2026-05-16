@@ -131,60 +131,79 @@ def set_background(image_path: str) -> None:
 
 
 
+
 def get_admin_css() -> str:
-    """Returns the CSS string for the admin dashboard."""
+    """Returns the Arctic Light CSS string for the admin dashboard."""
     return """
     <style>
-        .stApp { background-color: #0f0f23; }
+        .stApp { background-color: #f0f4f8; }
 
         /* ── Metric cards ── */
         [data-testid="stMetric"] {
-            background: rgba(108,99,255,0.12);
-            border: 1px solid rgba(108,99,255,0.35);
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
             border-radius: 14px;
             padding: 20px 24px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
         }
         [data-testid="stMetricLabel"] {
-            color: #a855f7 !important;
+            color: #0284c7 !important;
             font-size: 0.78rem;
             letter-spacing: 1px;
             text-transform: uppercase;
         }
         [data-testid="stMetricValue"] {
-            color: #fff !important;
+            color: #0f172a !important;
             font-size: 2rem;
             font-weight: 700;
         }
 
         /* ── Headings ── */
-        h2, h3 { color: #c4b5fd !important; }
-        hr { border-color: rgba(108,99,255,0.25) !important; }
+        h1, h2, h3 { color: #0f172a !important; }
+        hr { border-color: #e2e8f0 !important; }
 
         /* ── Inputs ── */
         [data-testid="stSelectbox"] > div,
         [data-testid="stTextInput"] > div > div {
-            background: rgba(108,99,255,0.08) !important;
-            border-color: rgba(108,99,255,0.3) !important;
+            background: #ffffff !important;
+            border-color: #cbd5e1 !important;
             border-radius: 8px !important;
-            color: #fff !important;
+            color: #0f172a !important;
         }
 
         /* ── Primary button ── */
         [data-testid="stButton"] > button[kind="primary"] {
-            background: linear-gradient(135deg, #7c3aed, #6c63ff);
+            background: linear-gradient(135deg, #0284c7, #0ea5e9);
             border: none;
             border-radius: 8px;
             color: white;
             font-weight: 600;
         }
 
+        /* ── Secondary button ── */
+        [data-testid="stButton"] > button[kind="secondary"] {
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            color: #475569;
+            font-weight: 500;
+        }
+
         /* ── Caption ── */
-        [data-testid="stCaptionContainer"] { color: #64748b !important; }
+        [data-testid="stCaptionContainer"] { color: #94a3b8 !important; }
 
         /* ── Warning box ── */
         [data-testid="stAlert"] {
-            background: rgba(251,191,36,0.08) !important;
-            border: 1px solid rgba(251,191,36,0.3) !important;
+            background: #fffbeb !important;
+            border: 1px solid #fcd34d !important;
+            border-radius: 10px !important;
+            color: #92400e !important;
+        }
+
+        /* ── Expander ── */
+        [data-testid="stExpander"] {
+            background: #ffffff !important;
+            border: 1px solid #e2e8f0 !important;
             border-radius: 10px !important;
         }
     </style>
@@ -192,6 +211,6 @@ def get_admin_css() -> str:
 
 
 def apply_admin_css() -> None:
-    """Injects admin CSS into the Streamlit page. Call once at the top of admin.py."""
+    """Injects Arctic Light admin CSS into the Streamlit page."""
     import streamlit as st
     st.markdown(get_admin_css(), unsafe_allow_html=True)
