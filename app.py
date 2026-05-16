@@ -125,6 +125,33 @@ def set_background(image_path):
             margin-bottom: 8px;
             opacity: 0.85;
         }}
+
+        /* Admin link style */
+        .admin-link {{
+            position: fixed;
+            bottom: 18px;
+            right: 22px;
+            z-index: 9999;
+            text-decoration: none;
+        }}
+        .admin-link span {{
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(20, 20, 35, 0.75);
+            border: 1px solid rgba(108, 99, 255, 0.4);
+            border-radius: 20px;
+            padding: 6px 14px;
+            font-size: 0.78rem;
+            color: #c4b5fd;
+            backdrop-filter: blur(6px);
+            transition: all 0.25s ease;
+        }}
+        .admin-link span:hover {{
+            background: rgba(108, 99, 255, 0.25);
+            border-color: #6c63ff;
+            color: white;
+        }}
         </style>
     """, unsafe_allow_html=True)
 
@@ -263,6 +290,12 @@ def auth_page():
 
                 except Exception as e:
                     st.error(f"Database connection error: {e}")
+
+    # ── Admin link (bottom-right, visible only on login page) ──
+    st.markdown(
+        '<a class="admin-link" href="/admin" target="_self"><span>⚙️ Admin Panel</span></a>',
+        unsafe_allow_html=True
+    )
 
 
 # ── Main app ──────────────────────────────────────────────────
