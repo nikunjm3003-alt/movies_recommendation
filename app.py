@@ -29,12 +29,12 @@ def load_data():
 
 # ── Auth page ─────────────────────────────────────────────────
 def auth_page():
-    # Cinema background for login page
     set_background("assets/cinema.jpg")
 
     st.title("🎬 Movie Recommendation System")
     tab1, tab2 = st.tabs(['Register', 'Login'])
 
+    # ── Register ──────────────────────────────────────────────
     with tab1:
         new_un   = st.text_input("Username", key='reg_un',   placeholder='geeksformovie')
         new_mail = st.text_input("Email",    key='reg_mail', placeholder='you@gmail.com')
@@ -45,61 +45,36 @@ def auth_page():
                 st.warning("Please fill in all fields.")
             else:
                 try:
-                    with conn.session as s:
-                        existing = pd.read_sql(
-                            text("""
-                                SELECT user_id
-                                FROM users
-                                WHERE username = :un
-                                OR email = :mail
-                            """),
-                            
-                            params={
-                                "un": new_un,
-                                "mail": new_mail
-                            },
-                            ttl = 0
-                        )
+                    existing = conn.query(
+                        "SELECT user_id FROM users WHERE username = :un OR email = :mail",
+                        params={"un": new_un, "mail": new_mail},
+                        ttl=0
+                    )
 
-                        if not existing.empty:
-                            st.error("Username or email already registered.")
-                        else:
-                            user_id = str(uuid.uuid4())
+                    if not existing.empty:
+                        st.error("Username or email already registered.")
+                    else:
+                        user_id = str(uuid.uuid4())
+                        hashed_pw = bcrypt.hashpw(
+                            new_pass.encode(),
+                            bcrypt.gensalt()
+                        ).decode()
 
-                            hashed_pw = bcrypt.hashpw(
-                                new_pass.encode(),
-                                bcrypt.gensalt()
-                            ).decode()
-
+                        with conn.session as s:
                             s.execute(
                                 text("""
-                                    INSERT INTO users (
-                                        user_id,
-                                        username,
-                                        email,
-                                        password
-                                    )
-                                    VALUES (
-                                        :uid,
-                                        :un,
-                                        :mail,
-                                        :pw
-                                    )
+                                    INSERT INTO users (user_id, username, email, password)
+                                    VALUES (:uid, :un, :mail, :pw)
                                 """),
-                                {
-                                    "uid": user_id,
-                                    "un": new_un,
-                                    "mail": new_mail,
-                                    "pw": hashed_pw
-                                }
+                                {"uid": user_id, "un": new_un, "mail": new_mail, "pw": hashed_pw}
                             )
-
                             s.commit()
-                            st.success("Registered successfully! Please login.")
+                        st.success("Registered successfully! Please login.")
 
                 except Exception as e:
                     st.error(f"Database error: {e}")
 
+    # ── Login ─────────────────────────────────────────────────
     with tab2:
         login_un   = st.text_input("Username", key='log_un',   placeholder='geeksformovie')
         login_pass = st.text_input("Password", key='log_pass', type='password', placeholder='your password')
@@ -107,39 +82,25 @@ def auth_page():
         if st.button("Login", use_container_width=True):
             if not login_un or not login_pass:
                 st.warning("Please enter both username and password.")
-
             else:
                 try:
-                    with conn.session as s:
-                        result = pd.read_sql(
-                            text("""
-                                SELECT user_id, username, password
-                                FROM users
-                                WHERE username = :un
-                            """),
-                            s.connection(),
-                            params={
-                                "un": login_un
-                            }
-                        )
+                    result = conn.query(
+                        "SELECT user_id, username, password FROM users WHERE username = :un",
+                        params={"un": login_un},
+                        ttl=0
+                    )
 
                     if result.empty:
                         st.error("Invalid username or password.")
-
                     else:
                         stored_hash = result.iloc[0]["password"]
 
-                        if bcrypt.checkpw(
-                            login_pass.encode(),
-                            stored_hash.encode()
-                        ):
+                        if bcrypt.checkpw(login_pass.encode(), stored_hash.encode()):
                             st.session_state.logged_in = True
-                            st.session_state.user_id = result.iloc[0]["user_id"]
-                            st.session_state.username = result.iloc[0]["username"]
-
+                            st.session_state.user_id   = result.iloc[0]["user_id"]
+                            st.session_state.username  = result.iloc[0]["username"]
                             st.success("Login successful!")
                             st.rerun()
-
                         else:
                             st.error("Invalid username or password.")
 
@@ -149,7 +110,6 @@ def auth_page():
 
 # ── Main app ──────────────────────────────────────────────────
 def main_page():
-    # Space/galaxy background for main page
     set_background("assets/galaxy.jpg")
 
     df = load_data()
@@ -157,7 +117,6 @@ def main_page():
     st.title("🎬 Movie Recommendation System")
     st.write(f"Welcome, **{st.session_state.username}**! 👋")
 
-    # Static movie quote below username
     st.markdown(
         '<p class="movie-quote">✨ "Cinema is a mirror by which we often see ourselves." — Martin Scorsese</p>',
         unsafe_allow_html=True
@@ -191,10 +150,9 @@ def main_page():
     st.markdown('<p class="filter-label">⭐ Number of Recommendations</p>', unsafe_allow_html=True)
     number = st.number_input("Number of Recommendations", min_value=1, max_value=20, value=5, label_visibility="collapsed")
 
-    # ── Year Range (full width so buttons don't wrap) ────────
+    # ── Year Range ────────────────────────────────────────────
     st.markdown('<p class="filter-label">📅 Year Range</p>', unsafe_allow_html=True)
 
-    # Prevent button text from wrapping
     st.markdown("""
         <style>
         div[data-testid="stHorizontalBlock"] button[kind="secondary"] {
@@ -233,7 +191,7 @@ def main_page():
     year_range   = (min_year, max_year)
     st.caption(f"📆 {min_year} – {max_year}")
 
-    # ── Wide Recommend Button ─────────────────────────────────
+    # ── Recommend Button ──────────────────────────────────────
     st.markdown("<br>", unsafe_allow_html=True)
     recommend_clicked = st.button("✨ Get Recommendations", type="primary", use_container_width=True)
 
@@ -253,7 +211,6 @@ def main_page():
         else:
             st.success(f"🎉 Top {number} recommendations for you!")
 
-            # Show results as styled HTML cards table
             display_cols = [c for c in ['title', 'year', 'genres', 'imdb_rating', 'where_to_watch'] if c in results.columns]
             display_df = results[display_cols].reset_index(drop=True)
 
@@ -270,7 +227,7 @@ def main_page():
                 row_items.append(
                     f'<tr style="border-bottom:1px solid rgba(108,99,255,0.18);transition:background 0.2s;"'
                     f' onmouseover="this.style.background=\'rgba(108,99,255,0.1)\'"'
-                    f' onmouseout="this.style.background=\'transparent\'">' 
+                    f' onmouseout="this.style.background=\'transparent\'">'
                     f'<td style="padding:13px 12px;font-weight:600;color:#fff;">{row["title"]}</td>'
                     f'<td style="padding:13px 12px;color:#c4b5fd;text-align:center;">{int(row["year"])}</td>'
                     f'<td style="padding:13px 12px;color:#94a3b8;font-size:0.82rem;">{row["genres"]}</td>'
@@ -280,10 +237,10 @@ def main_page():
                 )
 
             table_html = (
-                '<div style="overflow-x:auto;border-radius:12px;border:1px solid #6c63ff;margin-top:12px;">' 
-                '<table style="width:100%;border-collapse:collapse;background:rgba(15,15,35,0.88);">' 
+                '<div style="overflow-x:auto;border-radius:12px;border:1px solid #6c63ff;margin-top:12px;">'
+                '<table style="width:100%;border-collapse:collapse;background:rgba(15,15,35,0.88);">'
                 '<thead><tr style="background:linear-gradient(90deg,rgba(108,99,255,0.45),rgba(168,85,247,0.45));'
-                'border-bottom:2px solid #6c63ff;">' 
+                'border-bottom:2px solid #6c63ff;">'
                 '<th style="padding:12px;text-align:left;color:#c4b5fd;font-size:0.78rem;letter-spacing:1px;text-transform:uppercase;">🎬 Title</th>'
                 '<th style="padding:12px;text-align:center;color:#c4b5fd;font-size:0.78rem;letter-spacing:1px;text-transform:uppercase;">📅 Year</th>'
                 '<th style="padding:12px;text-align:left;color:#c4b5fd;font-size:0.78rem;letter-spacing:1px;text-transform:uppercase;">🎭 Genres</th>'
@@ -328,28 +285,21 @@ def main_page():
     # ── Search History ────────────────────────────────────────
     with st.expander("📋 My Search History"):
         try:
-            with conn.session as s:
-                history = pd.read_sql(
-                    text("""
-                        SELECT genre,
-                               mood,
-                               min_year,
-                               max_year,
-                               num_results
-                        FROM movie_searches
-                        WHERE user_id = :uid
-                        ORDER BY id DESC
-                        LIMIT 10
-                    """),
-                    s.connection(),
-                    params={
-                        "uid": st.session_state.user_id
-                    }
-                )
-
+            history = conn.query(
+                """
+                SELECT genre, mood, min_year, max_year, num_results
+                FROM movie_searches
+                WHERE user_id = :uid
+                ORDER BY id DESC
+                LIMIT 10
+                """,
+                params={"uid": st.session_state.user_id},
+                ttl=0
+            )
         except Exception as e:
             st.error(f"Failed to load history: {e}")
             history = pd.DataFrame()
+
         if history.empty:
             st.info("No search history yet.")
         else:
