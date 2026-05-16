@@ -131,150 +131,67 @@ def set_background(image_path: str) -> None:
 
 
 
-
 def get_admin_css() -> str:
-    """Returns the Midnight Cinema CSS for the admin dashboard."""
-
+    """Returns the CSS string for the admin dashboard."""
     return """
     <style>
+        .stApp { background-color: #0f0f23; }
 
-        /* ─────────────────────────────────────────────
-           MAIN BACKGROUND
-        ───────────────────────────────────────────── */
-        .stApp {
-            background: linear-gradient(180deg, #020617 0%, #0f172a 100%);
-            color: #f8fafc;
-        }
-
-
-        /* ─────────────────────────────────────────────
-           HEADINGS + TEXT
-        ───────────────────────────────────────────── */
-        h1, h2, h3 {
-            color: #f8fafc !important;
-        }
-
-        p, span, label {
-            color: #cbd5e1;
-        }
-
-        hr {
-            border-color: rgba(148, 163, 184, 0.12) !important;
-        }
-
-
-        /* ─────────────────────────────────────────────
-           METRIC CARDS
-        ───────────────────────────────────────────── */
+        /* ── Metric cards ── */
         [data-testid="stMetric"] {
-            background: rgba(17, 24, 39, 0.95);
-            border: 1px solid #334155;
-            border-radius: 16px;
-            padding: 22px;
-            box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+            background: rgba(108,99,255,0.12);
+            border: 1px solid rgba(108,99,255,0.35);
+            border-radius: 14px;
+            padding: 20px 24px;
         }
-
         [data-testid="stMetricLabel"] {
-            color: #38bdf8 !important;
-            font-size: 0.8rem;
+            color: #a855f7 !important;
+            font-size: 0.78rem;
             letter-spacing: 1px;
             text-transform: uppercase;
         }
-
         [data-testid="stMetricValue"] {
-            color: #f8fafc !important;
+            color: #fff !important;
             font-size: 2rem;
             font-weight: 700;
         }
 
+        /* ── Headings ── */
+        h2, h3 { color: #c4b5fd !important; }
+        hr { border-color: rgba(108,99,255,0.25) !important; }
 
-        /* ─────────────────────────────────────────────
-           INPUTS
-        ───────────────────────────────────────────── */
-        [data-testid="stTextInput"] input,
-        [data-testid="stSelectbox"] > div > div {
-            background: #0f172a !important;
-            color: #f8fafc !important;
-            border: 1px solid #334155 !important;
-            border-radius: 10px !important;
+        /* ── Inputs ── */
+        [data-testid="stSelectbox"] > div,
+        [data-testid="stTextInput"] > div > div {
+            background: rgba(108,99,255,0.08) !important;
+            border-color: rgba(108,99,255,0.3) !important;
+            border-radius: 8px !important;
+            color: #fff !important;
         }
 
-
-        /* ─────────────────────────────────────────────
-           BUTTONS
-        ───────────────────────────────────────────── */
+        /* ── Primary button ── */
         [data-testid="stButton"] > button[kind="primary"] {
-            background: linear-gradient(135deg, #0ea5e9, #38bdf8);
+            background: linear-gradient(135deg, #7c3aed, #6c63ff);
             border: none;
-            border-radius: 10px;
+            border-radius: 8px;
             color: white;
             font-weight: 600;
-            transition: all 0.25s ease;
-            box-shadow: 0 4px 14px rgba(14,165,233,0.18);
         }
 
-        [data-testid="stButton"] > button[kind="primary"]:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 6px 18px rgba(56,189,248,0.25);
-        }
+        /* ── Caption ── */
+        [data-testid="stCaptionContainer"] { color: #64748b !important; }
 
-        [data-testid="stButton"] > button[kind="secondary"] {
-            background: #111827;
-            border: 1px solid #334155;
-            border-radius: 10px;
-            color: #cbd5e1;
-        }
-
-
-        /* ─────────────────────────────────────────────
-           ALERTS + EXPANDERS
-        ───────────────────────────────────────────── */
+        /* ── Warning box ── */
         [data-testid="stAlert"] {
-            background: rgba(30, 41, 59, 0.92) !important;
-            border: 1px solid #475569 !important;
-            border-radius: 12px !important;
-            color: #f8fafc !important;
+            background: rgba(251,191,36,0.08) !important;
+            border: 1px solid rgba(251,191,36,0.3) !important;
+            border-radius: 10px !important;
         }
-
-        [data-testid="stExpander"] {
-            background: rgba(17, 24, 39, 0.92) !important;
-            border: 1px solid #334155 !important;
-            border-radius: 12px !important;
-        }
-
-
-        /* ─────────────────────────────────────────────
-           CAPTIONS
-        ───────────────────────────────────────────── */
-        [data-testid="stCaptionContainer"] {
-            color: #94a3b8 !important;
-        }
-
-
-        /* ─────────────────────────────────────────────
-           DATAFRAME
-        ───────────────────────────────────────────── */
-        .stDataFrame {
-            border: 1px solid #334155;
-            border-radius: 12px;
-            overflow: hidden;
-        }
-
-
-        /* ─────────────────────────────────────────────
-           SIDEBAR
-        ───────────────────────────────────────────── */
-        section[data-testid="stSidebar"] {
-            background: #020617;
-            border-right: 1px solid rgba(148,163,184,0.1);
-        }
-
     </style>
     """
 
 
 def apply_admin_css() -> None:
-    """Injects Midnight Cinema admin CSS into the Streamlit page."""
-
+    """Injects admin CSS into the Streamlit page. Call once at the top of admin.py."""
     import streamlit as st
     st.markdown(get_admin_css(), unsafe_allow_html=True)
