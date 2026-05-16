@@ -53,11 +53,12 @@ def auth_page():
                                 WHERE username = :un
                                 OR email = :mail
                             """),
-                            s.connection(),
+                            
                             params={
                                 "un": new_un,
                                 "mail": new_mail
-                            }
+                            },
+                            ttl = 0
                         )
 
                         if not existing.empty:
