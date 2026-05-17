@@ -163,7 +163,7 @@ def admin_dashboard():
     <div style="padding: 12px 0 16px 0; display:flex; justify-content:space-between; align-items:center;">
         <div>
             <h1 style="color:#f1f5f9; margin:0; font-size:1.8rem; font-weight:700; letter-spacing:-0.5px;">
-                📈 System Intelligence Dashboard
+                📈 Movie Recommendation System Dashboard
             </h1>
             <p style="color:#64748b; margin:2px 0 0 0; font-size:0.85rem;">
                 Real-time execution performance and demographic tracking metrics.
