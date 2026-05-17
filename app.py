@@ -150,6 +150,16 @@ def main_page():
     st.markdown('<p class="filter-label">⭐ Number of Recommendations</p>', unsafe_allow_html=True)
     number = st.number_input("Number of Recommendations", min_value=1, max_value=20, value=5, label_visibility="collapsed")
 
+    st.markdown('<p class="filter-label">⭐ IMDb Rating Range</p>', unsafe_allow_html=True)
+    rating_range = st.slider(
+    "IMDb Rating Range",
+    min_value=1.0,
+    max_value=10.0,
+    value=(6.0, 10.0), # Default to a reasonable range
+    step=0.1,
+    label_visibility="collapsed"
+                    )
+
     # ── Year Range ────────────────────────────────────────────
     st.markdown('<p class="filter-label">📅 Year Range</p>', unsafe_allow_html=True)
 
@@ -203,7 +213,9 @@ def main_page():
             genre=genre,
             mood=mood,
             min_year=year_range[0],
-            max_year=year_range[1]
+            max_year=year_range[1],
+            min_rating=rating_range[0],
+            max_rating=rating_range[1]
         )
 
         if isinstance(results, str):

@@ -19,7 +19,9 @@ def answer():
         genre='Animation',
         mood='Joy',
         min_year=1990,
-        max_year=2020
+        max_year=2020,
+        min_rating=1.0,
+        max_rating=10.0
     )
 
     if isinstance(results, str):
