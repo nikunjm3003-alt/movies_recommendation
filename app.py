@@ -273,9 +273,10 @@ def main_page():
                     s.execute(
                         text("""
                             INSERT INTO movie_searches (
-                                user_id, genre, mood, min_year, max_year, num_results, where_to_watch
+                                user_id, genre, mood, min_year, max_year, num_results, where_to_watch,
+                             min_rating, max_rating
                             )
-                            VALUES (:uid, :genre, :mood, :min_year, :max_year, :num_results, :where_to_watch)
+                            VALUES (:uid, :genre, :mood, :min_year, :max_year, :num_results, :where_to_watch, :min_rating, :max_rating)
                         """),
                         {
                             "uid":            st.session_state.user_id,
@@ -284,7 +285,9 @@ def main_page():
                             "min_year":       int(year_range[0]),
                             "max_year":       int(year_range[1]),
                             "num_results":    int(len(results)),
-                            "where_to_watch": where_to_watch_val
+                            "where_to_watch": where_to_watch_val,
+                            "min_rating" : float(rating_range[0]),
+                            "max_rating" : float(rating_range[1])
                         }
                     )
                     s.commit()
@@ -299,7 +302,7 @@ def main_page():
         try:
             history = conn.query(
                 """
-                SELECT genre, mood, min_year, max_year, num_results
+                SELECT genre, mood, min_year, max_year, num_results,min_rating,max_rating
                 FROM movie_searches
                 WHERE user_id = :uid
                 ORDER BY id DESC
