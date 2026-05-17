@@ -130,7 +130,6 @@ def set_background(image_path: str) -> None:
 
 
 
-
 def get_admin_css() -> str:
     """Returns the Ember Dark CSS string for the admin dashboard."""
     return """
@@ -160,12 +159,16 @@ def get_admin_css() -> str:
         h1, h2, h3 { color: #fed7aa !important; }
         hr { border-color: rgba(234,88,12,0.25) !important; }
  
-        /* ── Inputs ── */
-        [data-testid="stSelectbox"] > div,
-        [data-testid="stTextInput"] > div > div {
+        /* ── Targeted Inputs Fix ── */
+        [data-testid="stSelectbox"] div[data-baseweb="select"] > div,
+        [data-testid="stTextInput"] div[data-baseweb="input"] {
             background: rgba(234,88,12,0.07) !important;
-            border-color: rgba(234,88,12,0.3) !important;
+            border: 1px solid rgba(234,88,12,0.3) !important;
             border-radius: 8px !important;
+        }
+
+        /* Ensure input text remains white */
+        [data-testid="stTextInput"] input {
             color: #fff !important;
         }
  

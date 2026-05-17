@@ -135,11 +135,6 @@ def admin_login():
         </div>
         """, unsafe_allow_html=True)
 
-        st.markdown("""
-        <div style="background:rgba(234,88,12,0.07);border:1px solid rgba(234,88,12,0.3);
-            border-radius:16px;padding:32px;box-shadow:0 4px 24px rgba(234,88,12,0.1);">
-        """, unsafe_allow_html=True)
-
         password = st.text_input(
             "Admin Password",
             type="password",
@@ -152,8 +147,6 @@ def admin_login():
                 st.rerun()
             else:
                 st.error("❌ Incorrect password.")
-
-       
 
 
 # ── Admin Dashboard ───────────────────────────────────────────
