@@ -132,20 +132,20 @@ def set_background(image_path: str) -> None:
 
 
 def get_admin_css() -> str:
-    """Returns the CSS string for the admin dashboard."""
+    """Returns the Ember Dark CSS string for the admin dashboard."""
     return """
     <style>
-        .stApp { background-color: #0f0f23; }
-
+        .stApp { background-color: #18080a; }
+ 
         /* ── Metric cards ── */
         [data-testid="stMetric"] {
-            background: rgba(108,99,255,0.12);
-            border: 1px solid rgba(108,99,255,0.35);
+            background: rgba(234,88,12,0.08);
+            border: 1px solid rgba(234,88,12,0.3);
             border-radius: 14px;
             padding: 20px 24px;
         }
         [data-testid="stMetricLabel"] {
-            color: #a855f7 !important;
+            color: #fb923c !important;
             font-size: 0.78rem;
             letter-spacing: 1px;
             text-transform: uppercase;
@@ -155,43 +155,59 @@ def get_admin_css() -> str:
             font-size: 2rem;
             font-weight: 700;
         }
-
+ 
         /* ── Headings ── */
-        h2, h3 { color: #c4b5fd !important; }
-        hr { border-color: rgba(108,99,255,0.25) !important; }
-
+        h1, h2, h3 { color: #fed7aa !important; }
+        hr { border-color: rgba(234,88,12,0.25) !important; }
+ 
         /* ── Inputs ── */
         [data-testid="stSelectbox"] > div,
         [data-testid="stTextInput"] > div > div {
-            background: rgba(108,99,255,0.08) !important;
-            border-color: rgba(108,99,255,0.3) !important;
+            background: rgba(234,88,12,0.07) !important;
+            border-color: rgba(234,88,12,0.3) !important;
             border-radius: 8px !important;
             color: #fff !important;
         }
-
+ 
         /* ── Primary button ── */
         [data-testid="stButton"] > button[kind="primary"] {
-            background: linear-gradient(135deg, #7c3aed, #6c63ff);
+            background: linear-gradient(135deg, #9a3412, #ea580c);
             border: none;
             border-radius: 8px;
             color: white;
             font-weight: 600;
         }
-
+ 
+        /* ── Secondary button ── */
+        [data-testid="stButton"] > button[kind="secondary"] {
+            background: rgba(234,88,12,0.08);
+            border: 1px solid rgba(234,88,12,0.3);
+            border-radius: 8px;
+            color: #fb923c;
+            font-weight: 500;
+        }
+ 
         /* ── Caption ── */
-        [data-testid="stCaptionContainer"] { color: #64748b !important; }
-
+        [data-testid="stCaptionContainer"] { color: #78350f !important; }
+ 
         /* ── Warning box ── */
         [data-testid="stAlert"] {
-            background: rgba(251,191,36,0.08) !important;
+            background: rgba(251,191,36,0.07) !important;
             border: 1px solid rgba(251,191,36,0.3) !important;
+            border-radius: 10px !important;
+        }
+ 
+        /* ── Expander ── */
+        [data-testid="stExpander"] {
+            background: rgba(234,88,12,0.05) !important;
+            border: 1px solid rgba(234,88,12,0.2) !important;
             border-radius: 10px !important;
         }
     </style>
     """
-
-
+ 
+ 
 def apply_admin_css() -> None:
-    """Injects admin CSS into the Streamlit page. Call once at the top of admin.py."""
+    """Injects Ember Dark admin CSS into the Streamlit page."""
     import streamlit as st
     st.markdown(get_admin_css(), unsafe_allow_html=True)
