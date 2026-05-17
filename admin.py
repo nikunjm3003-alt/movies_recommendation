@@ -151,7 +151,7 @@ def admin_login():
 
 # ── Admin Dashboard ───────────────────────────────────────────
 def admin_dashboard():
-    conn = st.connection('postgresql', type='sql')
+    conn = st.connection('postgresql', type='sql', pool_pre_ping=True)
 
     # Header
     st.markdown("""

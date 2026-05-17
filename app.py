@@ -13,7 +13,7 @@ from src.utils import set_background
 st.set_page_config(page_title='Movie Recommendation System', layout='centered')
 
 # ── Database connection ───────────────────────────────────────
-conn = st.connection('postgresql', type='sql')
+conn = st.connection('postgresql', type='sql', pool_pre_ping=True)
 
 # ── Session state ─────────────────────────────────────────────
 if 'logged_in' not in st.session_state:
