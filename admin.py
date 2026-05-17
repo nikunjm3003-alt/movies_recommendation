@@ -89,6 +89,9 @@ def searches_table_html(df):
             <td style="padding:11px 14px;color:#78350f;font-size:0.82rem;">
                 {int(row['min_year'])} – {int(row['max_year'])}
             </td>
+            <td style="padding:11px 14px;color:#78350f;font-size:0.82rem;">
+                ⭐ {float(row['min_rating']):.1f} – {float(row['max_rating']):.1f}
+            </td>
             <td style="padding:11px 14px;text-align:center;color:#fb923c;font-weight:700;">
                 {int(row['num_results'])}
             </td>
@@ -110,6 +113,8 @@ def searches_table_html(df):
                         font-size:0.72rem;letter-spacing:1px;text-transform:uppercase;">😊 Mood</th>
                     <th style="padding:12px 14px;text-align:left;color:#fb923c;
                         font-size:0.72rem;letter-spacing:1px;text-transform:uppercase;">📅 Years</th>
+                    <th style="padding:12px 14px;text-align:left;color:#fb923c;
+                        font-size:0.72rem;letter-spacing:1px;text-transform:uppercase;">⭐ Rating Range</th>
                     <th style="padding:12px 14px;text-align:center;color:#fb923c;
                         font-size:0.72rem;letter-spacing:1px;text-transform:uppercase;">🎬 Results</th>
                 </tr>
@@ -175,8 +180,9 @@ def admin_dashboard():
     users_df = conn.query(
         "SELECT user_id, username, email FROM users ORDER BY username ASC", ttl=30)
 
+    # UPDATED QUERY: Included ms.min_rating and ms.max_rating
     searches_df = conn.query("""
-        SELECT u.username, ms.genre, ms.mood, ms.min_year, ms.max_year, ms.num_results
+        SELECT u.username, ms.genre, ms.mood, ms.min_year, ms.max_year, ms.min_rating, ms.max_rating, ms.num_results
         FROM movie_searches ms
         JOIN users u ON ms.user_id = u.user_id
         ORDER BY ms.id DESC LIMIT 100
