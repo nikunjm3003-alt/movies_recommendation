@@ -5,8 +5,8 @@ def recommend(df, number, genre, mood, min_year, max_year,min_rating,max_rating)
         (df['genres'].str.contains(genre, case=False, na=False)) &
         (df['year'] >= min_year) &
         (df['year'] <= max_year) &
-        (df['imbd_rating'] >= min_rating) &
-        (df['imbd_rating'] <= max_rating)
+        (df['imdb_rating'] >= min_rating) &
+        (df['imdb_rating'] <= max_rating)
     )
 
     filtered = df[mask]
