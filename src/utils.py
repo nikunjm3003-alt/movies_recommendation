@@ -131,86 +131,99 @@ def set_background(image_path: str) -> None:
 
 
 def get_admin_css() -> str:
-    """Returns the Ember Dark CSS string for the admin dashboard."""
+    """Returns the Professional Corporate Slate Blue CSS string for the admin dashboard."""
     return """
     <style>
-        .stApp { background-color: #18080a; }
+        /* Main background standard assignment */
+        .stApp { background-color: #0b0f19; }
  
         /* ── Metric cards ── */
         [data-testid="stMetric"] {
-            background: rgba(234,88,12,0.08);
-            border: 1px solid rgba(234,88,12,0.3);
-            border-radius: 14px;
-            padding: 20px 24px;
+            background: #1e293b;
+            border: 1px solid #334155;
+            padding: 16px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
         [data-testid="stMetricLabel"] {
-            color: #fb923c !important;
-            font-size: 0.78rem;
-            letter-spacing: 1px;
+            color: #94a3b8 !important;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
             text-transform: uppercase;
         }
         [data-testid="stMetricValue"] {
-            color: #fff !important;
+            color: #38bdf8 !important;
             font-size: 2rem;
             font-weight: 700;
         }
  
         /* ── Headings ── */
-        h1, h2, h3 { color: #fed7aa !important; }
-        hr { border-color: rgba(234,88,12,0.25) !important; }
+        h1, h2, h3, h4, h5, h6, p, label, .stMarkdown { 
+            color: #f1f5f9 !important; 
+        }
+        hr { 
+            border-color: rgba(51, 65, 85, 0.5) !important; 
+        }
  
         /* ── Targeted Inputs Fix ── */
         [data-testid="stSelectbox"] div[data-baseweb="select"] > div,
         [data-testid="stTextInput"] div[data-baseweb="input"] {
-            background: rgba(234,88,12,0.07) !important;
-            border: 1px solid rgba(234,88,12,0.3) !important;
-            border-radius: 8px !important;
+            color: #f1f5f9 !important;
+            background-color: #1e293b !important;
+            border-color: #334155 !important;
+            border-radius: 6px !important;
         }
 
-        /* Ensure input text remains white */
+        /* Ensure input text remains cleanly readable */
         [data-testid="stTextInput"] input {
-            color: #fff !important;
+            color: #f1f5f9 !important;
         }
  
-        /* ── Primary button ── */
+        /* ── Primary button (Enterprise Sky Blue Gradient) ── */
         [data-testid="stButton"] > button[kind="primary"] {
-            background: linear-gradient(135deg, #9a3412, #ea580c);
-            border: none;
-            border-radius: 8px;
-            color: white;
-            font-weight: 600;
+            background: linear-gradient(135deg, #0284c7, #0369a1) !important;
+            border: none !important;
+            border-radius: 6px !important;
+            color: #ffffff !important;
+            font-weight: 600 !important;
+            box-shadow: 0 2px 4px rgba(2, 132, 199, 0.2);
         }
  
-        /* ── Secondary button ── */
+        /* ── Secondary button (Subtle Cool Gray Frame) ── */
         [data-testid="stButton"] > button[kind="secondary"] {
-            background: rgba(234,88,12,0.08);
-            border: 1px solid rgba(234,88,12,0.3);
-            border-radius: 8px;
-            color: #fb923c;
+            background: transparent !important;
+            border: 1px solid #475569 !important;
+            border-radius: 6px !important;
+            color: #cbd5e1 !important;
             font-weight: 500;
+        }
+        [data-testid="stButton"] > button[kind="secondary"]:hover {
+            border-color: #94a3b8 !important;
+            color: #ffffff !important;
+            background: rgba(255, 255, 255, 0.02) !important;
         }
  
         /* ── Caption ── */
-        [data-testid="stCaptionContainer"] { color: #78350f !important; }
+        [data-testid="stCaptionContainer"] { color: #64748b !important; }
  
         /* ── Warning box ── */
         [data-testid="stAlert"] {
-            background: rgba(251,191,36,0.07) !important;
-            border: 1px solid rgba(251,191,36,0.3) !important;
-            border-radius: 10px !important;
+            background: rgba(30, 41, 59, 0.7) !important;
+            border: 1px solid #334155 !important;
+            border-radius: 8px !important;
         }
  
         /* ── Expander ── */
         [data-testid="stExpander"] {
-            background: rgba(234,88,12,0.05) !important;
-            border: 1px solid rgba(234,88,12,0.2) !important;
-            border-radius: 10px !important;
+            background: #131c2e !important;
+            border: 1px solid #1e293b !important;
+            border-radius: 8px !important;
         }
     </style>
     """
  
  
 def apply_admin_css() -> None:
-    """Injects Ember Dark admin CSS into the Streamlit page."""
+    """Injects professional administrative dark theme CSS into the Streamlit page."""
     import streamlit as st
     st.markdown(get_admin_css(), unsafe_allow_html=True)
