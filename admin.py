@@ -153,7 +153,7 @@ def admin_login():
             else:
                 st.error("❌ Incorrect password.")
 
-        st.markdown("</div>", unsafe_allow_html=True)
+       
 
 
 # ── Admin Dashboard ───────────────────────────────────────────
